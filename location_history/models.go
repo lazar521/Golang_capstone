@@ -2,24 +2,34 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"time"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"math"
 )
+
 
 var db *gorm.DB
 
 func init(){
+	databaseURL := os.Getenv("DATA_FOLDER")
+	if databaseURL == "" {
+		fmt.Println("DATA_FOLDER env variable not provided. Exiting..")
+		os.Exit(1)
+	}
+
+	databaseURL = databaseURL + "/location_history.db"
+
 	var err error
-	db, err = gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	db, err = gorm.Open(sqlite.Open(databaseURL), &gorm.Config{})
 	if err != nil {
 		fmt.Println("Error occured: ", err)
 		os.Exit(1)
 	}
 
-	db.AutoMigrate(&User{}, &Location{})
+	db.AutoMigrate( &Location{})
 }
 
 
@@ -34,15 +44,6 @@ func (loc *Location) BeforeSave(tx *gorm.DB) (err error) {
     return
 }
 
-
-
-
-
-type User struct {
-    ID        uint       `gorm:"primaryKey;autoIncrement"`
-    Name      string     `gorm:"size:100;not null"`
-	Locations []Location `gorm:"foreignKey:UserRefer"`
-}
 
 
 

@@ -5,20 +5,18 @@ import (
 )
 
 
+
+
 func registerRoutes(engine *gin.Engine){
-	engine.POST("/update/:username")
-	engine.GET("/nearby")
-	engine.GET("/distance/:username")
+	engine.GET("/distance/:username",calculateDistance)
 }
 
 
 
 func main() {
 	engine := gin.Default()
-	
 	registerRoutes(engine)
-
-	engine.Run() // listen and serve on 0.0.0.0:8080
+	engine.Run("localhost:8000") 
 }
 
 
