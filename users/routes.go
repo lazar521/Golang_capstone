@@ -1,11 +1,11 @@
 package main
 
 import (
+	"common/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
-
 
 
 
@@ -22,22 +22,28 @@ func updateLocation(c *gin.Context){
 		return
 	}
 
-	if err := checkUsername(username); err != nil {
+	if err := utils.CheckUsername(username); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	
-	if err := checkCoordinates(data.Xcoord,data.Ycoord); err != nil {
+	if err := utils.CheckCoordinates(data.Xcoord,data.Ycoord); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 
 	if err := updateLocationByUsername(username,data.Xcoord,data.Ycoord); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"you username" : username, "Xcoord":data.Xcoord,"Ycoord":data.Ycoord})
+	if err := notifyLocationHistoryService(username,data.Xcoord,data.Ycoord); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"Username" : username, "Xcoord":data.Xcoord,"Ycoord":data.Ycoord})
 }
 
 
@@ -54,7 +60,7 @@ func findNearby(c *gin.Context){
 		return
 	}
 
-	if err := checkCoordinates(data.Xcoord,data.Ycoord); err != nil {
+	if err := utils.CheckCoordinates(data.Xcoord,data.Ycoord); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

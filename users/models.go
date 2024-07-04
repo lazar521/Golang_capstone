@@ -1,41 +1,29 @@
 package main
 
 import (
+	"common/utils"
 	"errors"
 	"fmt"
-	"os"
 
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
+type User struct {
+    ID        uint       `gorm:"primaryKey;autoIncrement"`
+    Name      string     `gorm:"size:16;not null"`
+	Xcoord    float64    
+	Ycoord    float64
+}
 
-var db *gorm.DB
-
-func init(){
-	databaseURL := os.Getenv("DATA_FOLDER")
-	if databaseURL == "" {
-		fmt.Println("DATA_FOLDER env variable not provided. Exiting..")
-		os.Exit(1)
-	}
-
-	databaseURL = databaseURL + "/users.db"
-
-	var err error
-	db, err = gorm.Open(sqlite.Open(databaseURL), &gorm.Config{})
-	if err != nil {
-		fmt.Println("Error occured: ", err)
-		os.Exit(1)
-	}
-
-	db.AutoMigrate(&User{})
+func (user *User) String() string {
+	return fmt.Sprintf("User[Name: %s, Coordinates: (%.8f, %.8f)]", user.Name, user.Xcoord, user.Ycoord)
 }
 
 
 // GORM hook, executes before each save
 func (user *User) BeforeSave(tx *gorm.DB) (err error) {
-    user.Xcoord = roundToEightDecimals(user.Xcoord)
-    user.Ycoord = roundToEightDecimals(user.Ycoord)
+    user.Xcoord = utils.RoundToEightDecimals(user.Xcoord)
+    user.Ycoord = utils.RoundToEightDecimals(user.Ycoord)
     return
 }
 
@@ -52,7 +40,6 @@ func updateLocationByUsername(username string, xcoord float64, ycoord float64) e
 	}
 
 	if !errors.Is(res.Error, gorm.ErrRecordNotFound) {
-		fmt.Println("Error occurred while querying the database:", res.Error)
 		return res.Error
 	} 
 
@@ -73,7 +60,7 @@ func getNearbyByCoordinates(xcoord, ycoord, radius float64) ([]User, error) {
 	closeUsers := make([]User,0,len(users))
 
 	for _, user := range users {
-		if calcDistance(xcoord,ycoord,user.Xcoord,user.Ycoord) <= radius {
+		if utils.CalcDistance(xcoord,ycoord,user.Xcoord,user.Ycoord) <= radius {
 			closeUsers = append(closeUsers, user)
 		}
 	}
@@ -82,16 +69,6 @@ func getNearbyByCoordinates(xcoord, ycoord, radius float64) ([]User, error) {
 }
 
 
-func (user *User) String() string {
-	return fmt.Sprintf("User[Name: %s, Coordinates: (%.8f, %.8f)]", user.Name, user.Xcoord, user.Ycoord)
-}
 
-
-type User struct {
-    ID        uint       `gorm:"primaryKey;autoIncrement"`
-    Name      string     `gorm:"size:16;not null"`
-	Xcoord    float64    
-	Ycoord    float64
-}
 
 
