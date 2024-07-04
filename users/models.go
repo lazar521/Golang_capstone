@@ -1,8 +1,8 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"math"
 	"os"
 
 	"gorm.io/driver/sqlite"
@@ -32,16 +32,59 @@ func init(){
 }
 
 
-func roundToEightDecimals(val float64) float64 {
-    return math.Round(val*1e8) / 1e8
-}
-
+// GORM hook, executes before each save
 func (user *User) BeforeSave(tx *gorm.DB) (err error) {
     user.Xcoord = roundToEightDecimals(user.Xcoord)
     user.Ycoord = roundToEightDecimals(user.Ycoord)
     return
 }
 
+
+func updateLocationByUsername(username string, xcoord float64, ycoord float64) error {
+	var user User
+	res := db.Where("Name = ?", username,).First(&user)
+	
+	if res.Error == nil {
+		user.Xcoord = xcoord
+		user.Ycoord = ycoord
+		db.Save(&user)
+		return nil
+	}
+
+	if !errors.Is(res.Error, gorm.ErrRecordNotFound) {
+		fmt.Println("Error occurred while querying the database:", res.Error)
+		return res.Error
+	} 
+
+	user = User{Name: username, Xcoord: xcoord, Ycoord: ycoord}
+	db.Create(&user)
+	return nil
+}
+
+
+func getNearbyByCoordinates(xcoord, ycoord, radius float64) ([]User, error) {
+	var users []User
+	res := db.Find(&users)
+
+	if res.Error != nil {
+		return nil,res.Error
+	}
+
+	closeUsers := make([]User,0,len(users))
+
+	for _, user := range users {
+		if calcDistance(xcoord,ycoord,user.Xcoord,user.Ycoord) <= radius {
+			closeUsers = append(closeUsers, user)
+		}
+	}
+
+	return closeUsers,nil
+}
+
+
+func (user *User) String() string {
+	return fmt.Sprintf("User[Name: %s, Coordinates: (%.8f, %.8f)]", user.Name, user.Xcoord, user.Ycoord)
+}
 
 
 type User struct {
