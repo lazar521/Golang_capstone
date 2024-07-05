@@ -4,6 +4,7 @@ import (
 	"common/database"
 	"common/utils"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,7 @@ var (
 	GRPC_HOST string
 	GRPC_PORT string
 	DATABASE_URL string
+	LOG_URL string
 	db *gorm.DB
 )
 
@@ -28,6 +30,7 @@ func init(){
 	GRPC_HOST = utils.LoadEnv("LOCATION_HISTORY_GRPC_HOST")
 	GRPC_PORT = utils.LoadEnv("LOCATION_HISTORY_GRPC_PORT")
 	DATABASE_URL = utils.LoadEnv("LOCATION_HISTORY_DATABASE_URL")
+	LOG_URL = utils.LoadEnv("LOCATION_HISTORY_LOG_URL")
 }
 
 
@@ -42,6 +45,12 @@ func migrateModels(){
 
 
 func main() {
+	file := utils.InitLogging(LOG_URL)
+	defer 	file.Close()
+
+	gin.DefaultWriter = file
+	gin.DefaultErrorWriter = file
+
 	engine := gin.Default()
 	registerRoutes(engine)
 
@@ -55,7 +64,10 @@ func main() {
 	migrateModels()
 
 	go startGRPC()
-	engine.Run(REST_HOST + ":" + REST_PORT) 
+	go engine.Run(REST_HOST + ":" + REST_PORT) 
+
+	utils.WaitForSignal()
+	log.Println("All services down")
 }
 
 

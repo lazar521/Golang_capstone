@@ -2,6 +2,7 @@ package main
 
 import (
 	"common/utils"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -64,9 +65,9 @@ func getTraveledDistance(c *gin.Context){
 	}
 
 	distance,err := calculateDistanceByUsername(username,startTime,endTime)
-
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error":err})
+		log.Println("error: ",err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error":"could not calculate distance"})
 		return
 	}
 

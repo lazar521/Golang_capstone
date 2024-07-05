@@ -3,8 +3,10 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"os"
+	"os/signal"
 	"unicode"
 
 	"github.com/umahmood/haversine"
@@ -12,6 +14,32 @@ import (
 
 const RADIANS_EARTH = 6371000
 
+func InitLogging(filename string) *os.File {
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+	if err != nil {
+		log.Fatalf("Failed to open log file: %s", err)
+	}
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	log.SetOutput(file)
+	file.Sync()
+
+	return file
+}
+
+
+func WaitForSignal(){
+	sigChan := make(chan os.Signal, 1)
+	serverErrChan := make(chan error, 1)
+
+	signal.Notify(sigChan, os.Interrupt, os.Kill)
+
+	select {
+		case sig := <-sigChan:
+			log.Printf("Received signal: %v. Initiating graceful shutdown...\n", sig)
+		case err := <-serverErrChan:
+			log.Printf("Server error: %v. Initiating graceful shutdown...\n", err)
+	}
+}
 
 func LoadEnv(variableName string) string{
 	envVar := os.Getenv(variableName)

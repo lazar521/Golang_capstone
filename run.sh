@@ -9,14 +9,17 @@ export LOCATION_HISTORY_REST_HOST="localhost"
 export LOCATION_HISTORY_REST_PORT="8000"
 export LOCATION_HISTORY_GRPC_HOST="localhost"
 export LOCATION_HISTORY_GRPC_PORT="50051"
+export LOCATION_HISTORY_DATABASE_URL="$(pwd)/data/location_history.db"
+export LOCATION_HISTORY_LOG_URL="$(pwd)/data/location_history.log"
+
 
 export USERS_REST_HOST="localhost"
 export USERS_REST_PORT="8001"
 export USERS_GRPC_HOST="localhost"
 export USERS_GRPC_PORT="50051"
-
 export USERS_DATABASE_URL="$(pwd)/data/users.db"
-export LOCATION_HISTORY_DATABASE_URL="$(pwd)/data/location_history.db"
+export USERS_LOG_URL="$(pwd)/data/users.log"
+
 
 echo "Starting Project 1..."
 (cd "$PROJECT1" && go run . &)  

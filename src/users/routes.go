@@ -2,6 +2,7 @@ package main
 
 import (
 	"common/utils"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,7 @@ import (
 func updateLocation(c *gin.Context){
 	data := struct {
 		Longitude float64 `form:"longitude" binding:"required"`
-		Latitude float64 `form:"latitude" binding:"required"`
+		Latitude float64  `form:"latitude" binding:"required"`
 	}{}
 	
 	username := c.Param("username")
@@ -34,12 +35,14 @@ func updateLocation(c *gin.Context){
 
 
 	if err := updateLocationByUsername(username,data.Longitude,data.Latitude); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		log.Println("Error: ",err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update user location and history"})
 		return
 	}
 
 	if err := notifyLocationHistoryService(username,data.Longitude,data.Latitude); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		log.Println("Error: ",err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update location history"})
 		return
 	}
 
