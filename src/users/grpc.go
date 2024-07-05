@@ -12,7 +12,7 @@ import (
 
 
 
-func notifyLocationHistoryService(username string, xcoord float64, ycoord float64) error {
+func notifyLocationHistoryService(username string, longitude float64, latitude float64) error {
 	conn, err := grpc.Dial(GRPC_HOST + ":" + GRPC_PORT, grpc.WithInsecure(), grpc.WithBlock())
     if err != nil {
         return err
@@ -23,7 +23,7 @@ func notifyLocationHistoryService(username string, xcoord float64, ycoord float6
     ctx, cancel := context.WithTimeout(context.Background(), time.Second)
     defer cancel()
     
-	res, err := c.UpdateHistory(ctx, &pb.LocationUpdateRequest{Username: username, Xcoord: xcoord, Ycoord: ycoord})
+	res, err := c.UpdateHistory(ctx, &pb.LocationUpdateRequest{Username: username, Longitude: longitude, Latitude: latitude})
     if err != nil {
 		return err
     }

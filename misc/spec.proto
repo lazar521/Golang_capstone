@@ -9,8 +9,8 @@ service LocationHistoryService {
 
 message LocationUpdateRequest {
     string username = 1;
-    double xcoord = 2;
-    double ycoord = 3;
+    double longitude = 2;
+    double latitude = 3;
 }
 
 

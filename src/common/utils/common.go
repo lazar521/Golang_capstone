@@ -29,9 +29,9 @@ func RoundToEightDecimals(val float64) float64 {
 }
 
 
-func CalcDistance(xcoord1, ycoord1, xcoord2, ycoord2 float64) float64 {
-	coord1 := haversine.Coord{Lat: ycoord1, Lon: xcoord1} 
-	coord2 := haversine.Coord{Lat: ycoord2, Lon: xcoord2} 
+func CalcDistance(longitude1, latitude1, longitude2, latitude2 float64) float64 {
+	coord1 := haversine.Coord{Lat: latitude1, Lon: longitude1} 
+	coord2 := haversine.Coord{Lat: latitude2, Lon: longitude2} 
 	_, km := haversine.Distance(coord1, coord2)
 	return km
 }
@@ -50,12 +50,12 @@ func CheckUsername(username string) error {
 	return nil
 }
 
-func CheckCoordinates(xcoord, ycoord float64) error{
-	if xcoord < -180 || xcoord > 180 {
+func CheckCoordinates(longitude, latitude float64) error{
+	if longitude < -180 || longitude > 180 {
 		return errors.New("longitude must be between -180 and 180")
 	}
 	
-	if ycoord  < -90 || ycoord > 90 {
+	if latitude  < -90 || latitude > 90 {
 		return errors.New("latitude must be between -90 and 90")
 	}
 

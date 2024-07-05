@@ -17,30 +17,30 @@ const (
 type User struct {
     ID        uint       `gorm:"primaryKey;autoIncrement"`
     Name      string     `gorm:"size:16;not null"`
-	Xcoord    float64    
-	Ycoord    float64
+	Longitude float64    
+	Latitude  float64
 }
 
 func (user *User) String() string {
-	return fmt.Sprintf("User[Name: %s, Coordinates: (%.8f, %.8f)]", user.Name, user.Xcoord, user.Ycoord)
+	return fmt.Sprintf("User[Name: %s, Coordinates: (%.8f, %.8f)]", user.Name, user.Longitude, user.Latitude)
 }
 
 
 // GORM hook, executes before each save
 func (user *User) BeforeSave(tx *gorm.DB) (err error) {
-    user.Xcoord = utils.RoundToEightDecimals(user.Xcoord)
-    user.Ycoord = utils.RoundToEightDecimals(user.Ycoord)
+    user.Longitude = utils.RoundToEightDecimals(user.Longitude)
+    user.Latitude = utils.RoundToEightDecimals(user.Latitude)
     return
 }
 
 
-func updateLocationByUsername(username string, xcoord float64, ycoord float64) error {
+func updateLocationByUsername(username string, longitude float64, latitude float64) error {
 	var user User
 	res := db.Where("Name = ?", username,).First(&user)
 	
 	if res.Error == nil {
-		user.Xcoord = xcoord
-		user.Ycoord = ycoord
+		user.Longitude = longitude
+		user.Latitude = latitude
 		db.Save(&user)
 		return nil
 	}
@@ -49,13 +49,13 @@ func updateLocationByUsername(username string, xcoord float64, ycoord float64) e
 		return res.Error
 	} 
 
-	user = User{Name: username, Xcoord: xcoord, Ycoord: ycoord}
+	user = User{Name: username, Longitude: longitude, Latitude: latitude}
 	db.Create(&user)
 	return nil
 }
 
 
-func getNearbyByCoordinates(xcoord, ycoord float64 , radius float64, page int) ([]User, error) {
+func getNearbyByCoordinates(longitude float64, latitude float64 , radius float64, page int) ([]User, error) {
 	var users []User
 	res := db.Find(&users)
 
@@ -65,7 +65,7 @@ func getNearbyByCoordinates(xcoord, ycoord float64 , radius float64, page int) (
 
 	closeUsers := make([]User,0,len(users))
 	for _, user := range users {
-		if utils.CalcDistance(xcoord,ycoord,user.Xcoord,user.Ycoord) <= radius {
+		if utils.CalcDistance(longitude,latitude,user.Longitude,user.Latitude) <= radius {
 			closeUsers = append(closeUsers, user)
 		}
 	}

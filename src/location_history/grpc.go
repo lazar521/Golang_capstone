@@ -33,18 +33,18 @@ func startGRPC(){
 
 func (s *server) UpdateHistory(ctx context.Context, req *pb.LocationUpdateRequest) (*pb.LocationUpdateReply, error) {
     username := req.GetUsername()
-    xcoord := req.GetXcoord()
-    ycoord := req.GetYcoord()
+    longitude := req.GetLongitude()
+    latitude := req.GetLatitude()
 
     if err := utils.CheckUsername(username); err != nil {
         return &pb.LocationUpdateReply{Status: pb.Status_FAILED,Error: err.Error()}, err 
     }
 
-    if err := utils.CheckCoordinates(xcoord,ycoord); err != nil {
+    if err := utils.CheckCoordinates(longitude,latitude); err != nil {
         return &pb.LocationUpdateReply{Status: pb.Status_FAILED, Error: err.Error()}, err 
     }
 
-    if err := updateHistoryByUsername(username,xcoord,ycoord); err != nil {
+    if err := updateHistoryByUsername(username,longitude,latitude); err != nil {
         return &pb.LocationUpdateReply{Status: pb.Status_FAILED, Error: err.Error()}, err  
     }
     

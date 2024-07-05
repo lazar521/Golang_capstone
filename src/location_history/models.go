@@ -12,19 +12,19 @@ import (
 type Location struct {
 	ID		  uint       `gorm:"primaryKey;autoIncrement"`
 	Username  string     `gorm:"index"`
-    Xcoord	  float64    
-	Ycoord    float64    
+    Longitude	  float64    
+	Latitude    float64    
     Time      time.Time  `gorm:"autoCreateTime"`
 }
 
 func (loc *Location) String() string {
-	return fmt.Sprintf("Coordinates: (%.8f, %.8f)",loc.Xcoord,loc.Ycoord)
+	return fmt.Sprintf("Coordinates: (%.8f, %.8f)",loc.Longitude,loc.Latitude)
 }
 
 // GORM hook. Executes before every save operation
 func (loc *Location) BeforeSave(tx *gorm.DB) (err error) {
-    loc.Xcoord = utils.RoundToEightDecimals(loc.Xcoord)
-    loc.Ycoord = utils.RoundToEightDecimals(loc.Ycoord)
+    loc.Longitude = utils.RoundToEightDecimals(loc.Longitude)
+    loc.Latitude = utils.RoundToEightDecimals(loc.Latitude)
     return
 }
 
@@ -44,15 +44,15 @@ func calculateDistanceByUsername(username string, startTime time.Time, endTime t
 	var totalDistance float64
 	prevLoc := locations[0]
 	for _, currLoc := range locations[1:] {
-		totalDistance += utils.CalcDistance(prevLoc.Xcoord,prevLoc.Ycoord,currLoc.Xcoord,currLoc.Ycoord)
+		totalDistance += utils.CalcDistance(prevLoc.Longitude,prevLoc.Latitude,currLoc.Longitude,currLoc.Latitude)
 	}
 
 	return totalDistance,nil
 }
 
 
-func updateHistoryByUsername(username string, xcoord float64, ycoord float64) error{
-	loc := Location{Username: username, Xcoord: xcoord, Ycoord: ycoord}
+func updateHistoryByUsername(username string, longitude float64, latitude float64) error{
+	loc := Location{Username: username, Longitude: longitude, Latitude: latitude}
 	db.Create(&loc)
 	return nil
 }
