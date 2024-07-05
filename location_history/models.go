@@ -29,9 +29,9 @@ func (loc *Location) BeforeSave(tx *gorm.DB) (err error) {
 }
 
 
-func calculateDistanceByUsername(username string) (float64,error) {
+func calculateDistanceByUsername(username string, startTime time.Time, endTime time.Time) (float64,error) {
 	var locations []Location
-	res := db.Where("Username = ?", username).Find(&locations)
+	res := db.Where("Username = ? AND Time BETWEEN ? AND ?", username, startTime, endTime).Find(&locations)
 
 	if res.Error != nil {
 		return 0,res.Error

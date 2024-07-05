@@ -26,6 +26,6 @@ echo "Starting Project 2..."
 
 read -p "Press any key to stop running projects..."
 
-trap 'kill $(jobs -p)' EXIT
+trap 'kill $(jobs -p)' EXIT INT
 
 echo "Stopping projects..."
