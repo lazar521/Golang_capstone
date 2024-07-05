@@ -8,6 +8,12 @@ import (
 	"gorm.io/gorm"
 )
 
+
+const (
+	PAGE_SIZE int = 2
+)
+
+
 type User struct {
     ID        uint       `gorm:"primaryKey;autoIncrement"`
     Name      string     `gorm:"size:16;not null"`
@@ -49,7 +55,7 @@ func updateLocationByUsername(username string, xcoord float64, ycoord float64) e
 }
 
 
-func getNearbyByCoordinates(xcoord, ycoord, radius float64) ([]User, error) {
+func getNearbyByCoordinates(xcoord, ycoord float64 , radius float64, page int) ([]User, error) {
 	var users []User
 	res := db.Find(&users)
 
@@ -58,14 +64,24 @@ func getNearbyByCoordinates(xcoord, ycoord, radius float64) ([]User, error) {
 	}
 
 	closeUsers := make([]User,0,len(users))
-
 	for _, user := range users {
 		if utils.CalcDistance(xcoord,ycoord,user.Xcoord,user.Ycoord) <= radius {
 			closeUsers = append(closeUsers, user)
 		}
 	}
 
-	return closeUsers,nil
+	pagedUsers := make([]User,0,PAGE_SIZE)
+	firstOnPage := (page-1)*PAGE_SIZE
+
+	if len(closeUsers) < firstOnPage {
+		return pagedUsers,nil
+	} 
+
+	for i:=firstOnPage; i<len(closeUsers) && i<firstOnPage+PAGE_SIZE; i+=1 {
+		pagedUsers = append(pagedUsers, closeUsers[i])
+	}
+
+	return pagedUsers,nil
 }
 
 

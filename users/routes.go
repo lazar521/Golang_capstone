@@ -53,10 +53,16 @@ func findNearby(c *gin.Context){
 		Xcoord float64 `form:"xcoord" binding:"required"`
 		Ycoord float64 `form:"ycoord" binding:"required"`
 		Radius float64 `form:"radius" binding:"required"`
+		Page   int     `form:"page"   binding:"required"`
 	}{}
 
 	if err := c.ShouldBindQuery(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if data.Page <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "page number must be greater than zero"})
 		return
 	}
 
@@ -65,7 +71,7 @@ func findNearby(c *gin.Context){
 		return
 	}
 
-	users, err := getNearbyByCoordinates(data.Xcoord,data.Ycoord,data.Radius);
+	users, err := getNearbyByCoordinates(data.Xcoord,data.Ycoord,data.Radius,data.Page);
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
