@@ -1,7 +1,7 @@
 #!/bin/bash
 
-PROJECT1="./location_history"
-PROJECT2="./users"
+PROJECT1="./src/location_history"
+PROJECT2="./src/users"
 
 export DATA_FOLDER="$(pwd)/data"
 

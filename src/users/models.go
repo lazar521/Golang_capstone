@@ -10,7 +10,7 @@ import (
 
 
 const (
-	PAGE_SIZE int = 2
+	PAGE_SIZE int = 3
 )
 
 
