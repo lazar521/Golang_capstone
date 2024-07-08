@@ -4,7 +4,6 @@ import (
 	"common/database"
 	"common/utils"
 	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -45,8 +44,6 @@ func migrateModels(){
 
 
 
-
-
 func main() {
 	file := utils.InitLogging(LOG_URL)
 	defer 	file.Close()
@@ -57,12 +54,7 @@ func main() {
 	engine := gin.Default()
 	registerRoutes(engine)
 
-	var err error
-	db,err = database.New(DATABASE_URL)
-	if err != nil {
-		log.Println("error: ",err.Error())
-		os.Exit(1);
-	}
+	db = database.New(DATABASE_URL)
 	defer database.Close(db)
 	migrateModels()
 	

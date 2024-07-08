@@ -50,13 +50,18 @@ func getTraveledDistance(c *gin.Context){
 		var err error
 		startTime, err = time.Parse(LAYOUT, data.StartTimeStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "lower time bound of unknown format" + startTime.String()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "lower time bound of unknown format"})
 			return
 		}
 	
 		endTime, err = time.Parse(LAYOUT, data.EndTimeStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "upper time bound of unknown format" + endTime.String()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "upper time bound of unknown format"})
+			return
+		}
+
+		if startTime.After(endTime){
+			c.JSON(http.StatusBadRequest, gin.H{"error": "end time is set before start time"})
 			return
 		}
 	} else {
@@ -73,5 +78,6 @@ func getTraveledDistance(c *gin.Context){
 
 	c.JSON(http.StatusOK, gin.H{"Traveled distance":distance})
 }
+
 
 

@@ -10,6 +10,7 @@ import (
 
 
 
+
 func updateLocation(c *gin.Context){
 	data := struct {
 		Longitude float64 `form:"longitude" binding:"required"`

@@ -8,8 +8,6 @@
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on localhost:8000
-2024/07/08 09:48:07 grpc.go:27: server listening at [::]:50051
-[GIN] 2024/07/08 - 09:48:50 | 200 |     456.156µs |       127.0.0.1 | GET      "/distance/janko?start=2023-07-04T14:59:01+02:00&end=2025-07-05T12:34:07+02:00"
-[GIN] 2024/07/08 - 09:48:58 | 200 |     380.867µs |       127.0.0.1 | GET      "/distance/janko?start=2023-07-04T14:59:01+02:00&end=2025-07-05T12:34:07+02:00"
-2024/07/08 09:49:04 common.go:38: Received signal: interrupt. Initiating graceful shutdown...
-2024/07/08 09:49:04 main.go:70: All services down
+2024/07/08 14:34:45 grpc.go:27: server listening at [::]:50051
+2024/07/08 14:34:45 common.go:38: Received signal: interrupt. Initiating graceful shutdown...
+2024/07/08 14:34:45 main.go:64: All services down
