@@ -14,48 +14,44 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var router *gin.Engine // Global Gin engine
 
-
-
-
-var router *gin.Engine
-
-
-func wipeDatabase(){
+// wipeDatabase drops all tables and migrates the models
+func wipeDatabase() {
 	err := db.Migrator().DropTable(&User{})
-    if err != nil {
-        fmt.Println("failed to drop tables: ", err)
+	if err != nil {
+		fmt.Println("failed to drop tables: ", err)
 		os.Exit(1)
 	}
 	migrateModels()
 }
 
-// setup
+// TestMain sets up the testing environment
 func TestMain(m *testing.M) {
+	// Initialize logging
 	file := utils.InitLogging(LOG_URL)
-	defer 	file.Close()
-	
+	defer file.Close()
 
+	// Set Gin's default writer and error writer to the log file
 	gin.DefaultWriter = file
 	gin.DefaultErrorWriter = file
 
+	// Create a new Gin engine and register routes
 	router = gin.Default()
 	registerRoutes(router)
 
+	// Connect to the database and migrate models
 	db = database.New(DATABASE_URL)
 	defer database.Close(db)
 
-    m.Run()
+	// Run the tests
+	m.Run()
 }
 
-
-
-
-
+// TestUpdateLocationByUsername tests the updateLocationByUsername function
 func TestUpdateLocationByUsername(t *testing.T) {
 	wipeDatabase()
 
-	
 	t.Run("Update existing user location", func(t *testing.T) {
 		user := User{Name: "testuser", Longitude: 10.0, Latitude: 20.0}
 		db.Create(&user)
@@ -79,13 +75,11 @@ func TestUpdateLocationByUsername(t *testing.T) {
 		assert.Equal(t, 50.0, newUser.Longitude)
 		assert.Equal(t, 60.0, newUser.Latitude)
 	})
-
 }
 
-
+// TestGetNearbyByCoordinates tests the getNearbyByCoordinates function
 func TestGetNearbyByCoordinates(t *testing.T) {
 	wipeDatabase()
-
 
 	users := []User{
 		{Name: "user1", Longitude: 10.0, Latitude: 10.0},
@@ -99,9 +93,8 @@ func TestGetNearbyByCoordinates(t *testing.T) {
 		nearbyUsers, err := getNearbyByCoordinates(15.0, 15.0, 2000.0, 1)
 		assert.NoError(t, err)
 		assert.Len(t, nearbyUsers, 2)
-		assert.Equal(t,nearbyUsers[0], users[0])
-		assert.Equal(t,nearbyUsers[1], users[1])
-
+		assert.Equal(t, nearbyUsers[0], users[0])
+		assert.Equal(t, nearbyUsers[1], users[1])
 	})
 
 	t.Run("No users within radius", func(t *testing.T) {
@@ -117,10 +110,11 @@ func TestGetNearbyByCoordinates(t *testing.T) {
 	})
 }
 
-
-
+// TestUpdateLocation tests the updateLocation endpoint
 func TestUpdateLocation(t *testing.T) {
 	wipeDatabase()
+	
+	// Mock the notifyLocationHistoryService function
 	notifyLocationHistoryService = func(username string, longitude, latitude float64) error {
 		return nil
 	}
@@ -129,7 +123,6 @@ func TestUpdateLocation(t *testing.T) {
 		{Name: "testuser", Longitude: 0.0, Latitude: 10.0},
 	}
 	db.Create(&users)
-
 
 	t.Run("Valid Request", func(t *testing.T) {
 		w := httptest.NewRecorder()
